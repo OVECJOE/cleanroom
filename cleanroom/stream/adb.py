@@ -74,7 +74,7 @@ class ADBClient:
         not fully ready, so we check the output string explicitly.
         """
         try:
-            rc, stdout, stderr = await self._run(
+            rc, stdout, _ = await self._run(
                 "connect", self._serial, check=False
             )
             success = "connected to" in stdout.lower() or rc == 0
@@ -141,3 +141,24 @@ class ADBClient:
         """Get an Android system property."""
         result = await self.shell(f"getprop {prop}")
         return result.strip()
+    
+    async def send_tap(self, x: int, y: int) -> None:
+        """Send a touch tap event at (x, y) in display coordinates."""
+        await self.shell(f"input tap {x} {y}")
+    
+    async def send_text(self, text: str) -> None:
+        """Type text into the focused field."""
+        # Escape special shell characters
+        escaped = text.replace("'", "\\'").replace(" ", "%s")
+        await self.shell(f"input text '{escaped}'")
+    
+    async def is_responsive(self) -> bool:
+        try:
+            rc, _, _ = await self._run(
+                "shell", "echo", "ping",
+                timeout=3.0,
+                check=False
+            )
+            return rc == 0
+        except Exception:
+            return False
