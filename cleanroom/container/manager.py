@@ -202,7 +202,6 @@ class ContainerManager:
                 "ReadonlyRootfs": False, # We need to write to /data, so rootfs cannot be read-only
                 # Restart policy: no automatic restart.
                 "RestartPolicy": {"Name": "no"},
-                "NetworkMode": f"container:{network_id}",
             },
             "Labels": {
                 "cleanroom.session_id": session_id,

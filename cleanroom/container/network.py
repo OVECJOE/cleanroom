@@ -19,15 +19,12 @@ async def create_session_network(client: aiodocker.Docker, session_id: str) -> s
         "Name": network_name,
         "Driver": "bridge",
         "Internal": True, # No external routing. Container is air-gapped
-        "Options": {
-            "com.docker.network.bridge.name": f"cr-{session_id[:8]}",
-        },
         "Labels": {
             "cleanroom.session_id": session_id,
             "cleanroom.managed": "true",
         }
     })
-    network_id = network["Id"]
+    network_id = network.id
     logger.info("Created network %s for session %s", network_id, session_id)
     return network_id
 

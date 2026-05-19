@@ -1,6 +1,19 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 import os
+import sys
+from pathlib import Path
+
+def _default_docker_socket() -> str:
+    """Detect the Docker socket path, handling Docker Desktop on Linux."""
+    default = "unix:///var/run/docker.sock"
+    if sys.platform != "linux":
+        return default
+    desktop_socket = Path.home() / ".docker" / "desktop" / "docker.sock"
+    if desktop_socket.exists():
+        return f"unix://{desktop_socket}"
+    return default
+
 
 class Settings(BaseSettings):
     """
@@ -19,7 +32,7 @@ class Settings(BaseSettings):
     # It is a Unix domain socket -- a file-like IPC mechanism -- that the
     # Docker daemon listens on. When we write to this socket, we are talking
     # directly to the Docker daemon. This is what docker CLI does too.
-    docker_socket: str = "unix:///var/run/docker.sock"
+    docker_socket: str = Field(default_factory=_default_docker_socket)
 
     # The ReDroid image to use.
     android_image: str = "redroid/redroid:12.0.0-latest"

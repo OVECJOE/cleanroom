@@ -59,7 +59,7 @@ def create_application() -> FastAPI:
         # Start the TTL watchdog background task
         await watchdog.start()
 
-        logger.info("CleanRoom ready and listening on %s", app.url_path_for("root"))
+        logger.info("CleanRoom ready and listening")
         yield
 
         # Shutdown: stop the watchdog, then the Docker client.

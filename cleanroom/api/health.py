@@ -23,7 +23,7 @@ async def health(request: Request) -> HealthResponse:
 
     docker_ok = False
     try:
-        await manager.client.system.ping()
+        await manager.client.system.info()
         docker_ok = True
     except Exception:
         pass
