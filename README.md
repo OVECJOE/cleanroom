@@ -16,6 +16,7 @@ Spin one up. Do your thing. Watch it vanish.
 [![Platform: Linux/KVM](https://img.shields.io/badge/Platform-Linux%20%2F%20KVM-teal.svg)]()
 [![Android: Go Edition](https://img.shields.io/badge/Android-Go%20Edition-green.svg)]()
 [![Privacy: Tor%2FWireGuard](https://img.shields.io/badge/Privacy-Tor%20%2F%20WireGuard-purple.svg)]()
+[![Payments: Web3](https://img.shields.io/badge/Payments-Web3%20%2F%20USDC-orange.svg)]()
 
 [**Try it live →**](https://cleanroom.sh) &nbsp;·&nbsp; [Architecture deep-dive](docs/architecture.md) &nbsp;·&nbsp; [The full technical guide](docs/guide.md)
 
@@ -199,7 +200,7 @@ For a manual step-by-step setup, see [docs/architecture.md](docs/architecture.md
 
 On a 4 GB VPS, CleanRoom enforces a hard limit of 3 concurrent sessions by default. This leaves comfortable headroom for the host OS, the backend services, and variance in per-session memory usage. A 4th session request is queued and started the moment an existing session ends.
 
-Each session is given 512 MB of memory and 1 vCPU. Sessions have a hard TTL of 30 minutes — after which they are destroyed automatically regardless of activity. The timer is visible to the user and resets are available on paid plans.
+Each session is given 512 MB of memory and 1 vCPU. Sessions have a hard TTL — after which they are destroyed automatically regardless of activity. The timer is visible to the user. Default sessions last 10 minutes; longer durations are available through on-chain payment.
 
 If you need more capacity, run multiple VPS nodes and point them at a shared session coordinator. The backend is stateless enough to support this with a Redis-backed session store. See [docs/architecture.md](docs/architecture.md) for the multi-node setup.
 
@@ -217,19 +218,37 @@ The complete threat model is documented in [docs/security.md](docs/security.md).
 
 ---
 
-## Production access
+## Payments & Access
 
-A hosted version of CleanRoom is available at **[cleanroom.sh](https://cleanroom.sh)**.
+CleanRoom uses on-chain payments exclusively. No email, no account, no KYC. Your wallet is your identity.
 
-Free sessions run for up to 10 minutes, use Tor routing, and are limited to one concurrent session per account. Paid plans extend the session duration, add WireGuard routing options for faster connections, increase concurrent session limits, and support reserved session slots so there is no queue.
+**Chain:** USDC on Base (low gas, fast confirmations, EVM-compatible).
 
-No account is required for a free session. An email is required only if you want to purchase a plan or reserve session time.
+**How it works:**
+
+1. **Connect your wallet.** MetaMask, WalletConnect, or any EVM wallet. There is no registration screen. No email field. Nothing to fill out.
+2. **Pick a duration.** 30 minutes, 1 hour, 3 hours — each with a fixed USDC price. The price covers compute (CPU + RAM allocated to your container), bandwidth (Tor exit node infrastructure), and the disposable guarantee.
+3. **Send payment.** You get a unique payment address for your session request. Send the exact USDC amount. The per-session address prevents linking your transactions to other sessions or to other users.
+4. **On-chain verification.** The backend monitors the chain. After one confirmation, it mints a short-lived JWT tied to that transaction hash. This token grants access to exactly one session for the duration you paid for.
+5. **Use and vanish.** Your session runs for the paid duration. When the TTL expires, the watchdog hard-kills the container. The tmpfs `/data` is freed. All network namespaces, iptables rules, and filesystem overlays are deleted. No logs of what you did inside are kept.
+
+**Free tier.** A limited free session (10 minutes, Tor routing only) is available with no payment required. One concurrent free session at a time.
+
+**Future: trustless escrow.** The current flow routes payment through the backend for verification. The planned upgrade moves this on-chain entirely — a smart contract holds your deposit, releases it to the platform when the session boots, and auto-refunds if the session fails to start. This removes the backend from the payment path and makes the entire flow verifiable by anyone.
+
+---
+
+## Self-hosting
+
+A hosted version of CleanRoom is available at **[cleanroom.sh](https://cleanroom.sh)** with the Web3 payment flow described above.
+
+If operator trust is a concern, you can self-host the entire stack on your own VPS. The `infra/setup.sh` script handles full provisioning. See the [Deploying to a VPS](#deploying-to-a-vps) section above. Self-hosting gives you complete control: no payment gateway, no shared infrastructure, no one else who can inspect a running container.
 
 ---
 
 ## Contributing
 
-CleanRoom is open source and welcomes contributions. The areas most in need of work are GPU passthrough support for smoother Android rendering, a multi-node session coordinator for horizontal scaling, a more polished frontend session UI, and additional proxy routing options beyond Tor and WireGuard.
+CleanRoom is open source and welcomes contributions. The areas most in need of work are GPU passthrough support for smoother Android rendering, the on-chain payment escrow smart contract, a multi-node session coordinator for horizontal scaling, a more polished frontend session UI, and additional proxy routing options beyond Tor and WireGuard.
 
 Open an issue before starting significant work so we can discuss the approach. For bug reports, include the output of `docker logs [container-id]` and the browser console log — most issues are diagnosable from those two sources.
 
