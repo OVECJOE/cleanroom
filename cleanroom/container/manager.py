@@ -104,6 +104,15 @@ class ContainerManager:
             session.network_id = network_id
             await self._registry.update(session)
 
+            # Start Tor sidecar if enabled
+            if settings.enable_tor:
+                from cleanroom.proxy.tor import start_tor_sidecar
+                tor_id = await start_tor_sidecar(
+                    self.client, session.id, network_id
+                )
+                session.tor_container_id = tor_id
+                await self._registry.update(session)
+
             # Start the Android container.
             container_id = await self._start_android_container(
                 session_id=session.id,

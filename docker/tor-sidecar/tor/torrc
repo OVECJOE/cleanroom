@@ -1,0 +1,7 @@
+SocksPort 0.0.0.0:9050
+ExitPolicy reject *:*
+SocksPort 0.0.0.0:9051 IsolateDestAddr
+DataDirectory /var/lib/tor
+MaxCircuitDirtiness 600
+UseGuardFraction 1
+NumEntryGuards 3
