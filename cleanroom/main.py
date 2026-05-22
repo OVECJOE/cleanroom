@@ -84,9 +84,11 @@ def create_application() -> FastAPI:
     # Register routes
     from cleanroom.api.sessions import router as sessions_router
     from cleanroom.api.health import router as health_router
+    from cleanroom.api.stream import router as stream_router
 
     app.include_router(sessions_router, prefix="/api")
     app.include_router(health_router)
+    app.include_router(stream_router)
 
     return app
 

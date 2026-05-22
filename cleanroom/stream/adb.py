@@ -146,6 +146,10 @@ class ADBClient:
         """Send a touch tap event at (x, y) in display coordinates."""
         await self.shell(f"input tap {x} {y}")
     
+    async def send_key(self, keycode: str) -> None:
+        """Send a key press event."""
+        await self.shell(f"input keyevent {keycode}")
+    
     async def send_text(self, text: str) -> None:
         """Type text into the focused field."""
         # Escape special shell characters
