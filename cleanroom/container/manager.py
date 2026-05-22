@@ -6,6 +6,7 @@ import aiodocker
 import aiodocker.exceptions
 
 from cleanroom.config import settings
+from cleanroom.container.boot import run_boot_pipeline
 from cleanroom.container.models import Session, SessionStatus
 from cleanroom.container.network import create_session_network, destroy_session_network
 from cleanroom.container.ports import port_pool
@@ -40,6 +41,7 @@ class ContainerManager:
     def __init__(self, registry: SessionRegistry):
         self._registry = registry
         self._client: aiodocker.Docker | None = None
+        self._boot_tasks: dict[str, asyncio.Task] = {}
     
     async def start(self) -> None:
         """Initialize the Docker client. Called at application startp"""
@@ -122,6 +124,24 @@ class ContainerManager:
             session.container_id = container_id
             session.status = SessionStatus.BOOTING
             await self._registry.update(session)
+
+            # Spawn the boot pipeline as a background asyncio task.
+            boot_task = asyncio.create_task(
+                run_boot_pipeline(
+                    session=session,
+                    registry=self._registry,
+                    destroy_fn=self.destroy_session,
+                ),
+                name=f"boot-{session.id}",
+            )
+
+            # Store the task reference to prevent garbage collection
+            # and to allow cancellation when the session is destroyed
+            # before the boot completes.
+            self._boot_tasks[session.id] = boot_task
+            boot_task.add_done_callback(
+                lambda t: self._boot_tasks.pop(session.id, None)
+            )
 
             logger.info(
                 "Session %s created: container=%s port=%d",
@@ -247,6 +267,13 @@ class ContainerManager:
         if session is None:
             logger.warning("Destroy called for unknown session %s", session_id)
             return
+        
+        if session.id in self._boot_tasks:
+            self._boot_tasks[session.id].cancel()
+            try:
+                await self._boot_tasks[session_id]
+            except asyncio.CancelledError:
+                pass
         
         session.status = SessionStatus.DESTROYING
         await self._registry.update(session)
