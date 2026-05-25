@@ -1,7 +1,7 @@
-import asyncio
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock
+
 import pytest
-from datetime import datetime, timezone, timedelta
-from unittest.mock import AsyncMock, MagicMock
 
 from cleanroom.container.models import Session, SessionStatus
 from cleanroom.container.registry import SessionRegistry
@@ -10,7 +10,9 @@ from cleanroom.watchdog.ttl import TTLWatchdog
 
 @pytest.fixture
 def registry(tmp_path, monkeypatch):
-    monkeypatch.setattr("cleanroom.container.registry.REGISTRY_PATH", tmp_path / "s.json")
+    monkeypatch.setattr(
+        "cleanroom.container.registry.REGISTRY_PATH", tmp_path / "s.json"
+    )
     return SessionRegistry()
 
 
@@ -30,7 +32,7 @@ class TestTTLEnforcement:
         session = Session(
             id="expired",
             status=SessionStatus.READY,
-            expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+            expires_at=datetime.now(UTC) - timedelta(seconds=1),
         )
         await registry.add(session)
         await watchdog._check_sessions()
@@ -40,7 +42,7 @@ class TestTTLEnforcement:
         session = Session(
             id="dead",
             status=SessionStatus.DEAD,
-            expires_at=datetime.now(timezone.utc) + timedelta(seconds=1),
+            expires_at=datetime.now(UTC) + timedelta(seconds=1),
         )
         await registry.add(session)
         await watchdog._check_sessions()
@@ -50,7 +52,7 @@ class TestTTLEnforcement:
         session = Session(
             id="destroying",
             status=SessionStatus.DESTROYING,
-            expires_at=datetime.now(timezone.utc) + timedelta(seconds=1),
+            expires_at=datetime.now(UTC) + timedelta(seconds=1),
         )
         await registry.add(session)
         await watchdog._check_sessions()
@@ -64,12 +66,12 @@ class TestTTLEnforcement:
         session1 = Session(
             id="fail",
             status=SessionStatus.READY,
-            expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+            expires_at=datetime.now(UTC) - timedelta(seconds=1),
         )
         session2 = Session(
             id="also-expired",
             status=SessionStatus.READY,
-            expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+            expires_at=datetime.now(UTC) - timedelta(seconds=1),
         )
         await registry.add(session1)
         await registry.add(session2)

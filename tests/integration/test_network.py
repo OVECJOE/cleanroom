@@ -1,9 +1,7 @@
-import pytest
 import aiodocker
+import pytest
 
-from cleanroom.container import network
 from cleanroom.container.network import create_session_network, destroy_session_network
-
 
 
 @pytest.mark.integration
@@ -51,7 +49,9 @@ class TestNetworkCreation:
             await docker_client.networks.get(network_id)
         assert exc_info.value.status == 404
     
-    async def test_destroy_nonexistent_does_not_crash(self, docker_client: aiodocker.Docker):
+    async def test_destroy_nonexistent_does_not_crash(
+        self, docker_client: aiodocker.Docker
+    ):
         """Destroying a non-existent network should be handled gracefully."""
         fake_id = "a" * 64 # plausible-looking Docker ID
         await destroy_session_network(docker_client, fake_id, "ghost-session")
@@ -61,7 +61,9 @@ class TestNetworkCreation:
         ids = []
         try:
             for i in range(3):
-                nid = await create_session_network(docker_client, f"unique-session-{i:04d}")
+                nid = await create_session_network(
+                    docker_client, f"unique-session-{i:04d}"
+                )
                 ids.append((f"unique-session-{i:04d}", nid))
             # All network IDs should be unique
             assert len(set(nid for _, nid in ids)) == 3

@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import socket
+
 import aiodocker
 
 from cleanroom.config import settings
@@ -84,7 +84,9 @@ async def _wait_for_sidecar_ready(session_id: str, timeout: float = 60.0) -> Non
     raise TimeoutError(f"Tor sidecar did not become ready within {timeout}s")
 
 
-async def configure_android_proxy(adb_client: ADBClient, proxy_host: str = TOR_SIDECAR_ALIAS) -> None:
+async def configure_android_proxy(
+    adb_client: ADBClient, proxy_host: str = TOR_SIDECAR_ALIAS
+) -> None:
     """
     Configure Android to route all HTTP/HTTPS traffic through Tor sidecar.
 

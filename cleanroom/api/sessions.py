@@ -1,8 +1,9 @@
 import logging
-from fastapi import APIRouter, Request, HTTPException, status
+
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
-from cleanroom.container.models import Session, SessionStatus
+from cleanroom.container.models import SessionStatus
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -45,7 +46,10 @@ async def create_session(request: Request) -> CreateSessionResponse:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={
                 "error": "capacity_exceeded",
-                "message": f"Maximum concurrent sessions ({settings.max_sessions}) reached. Please try again later.",
+                "message": (
+                    f"Maximum concurrent sessions ({settings.max_sessions})"
+                    " reached. Please try again later."
+                ),
                 "active": registry.count()
             }
         )

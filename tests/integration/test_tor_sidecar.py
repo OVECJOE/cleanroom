@@ -1,4 +1,3 @@
-import asyncio
 import aiodocker
 import pytest
 
@@ -22,7 +21,10 @@ class TestTorSidecar:
         try:
             await docker_client.images.inspect("cleanroom-tor:latest")
         except Exception:
-            pytest.skip("cleanroom-tor image not built. Run 'docker build -t cleanroom-tor docker/tor-sidecar/' to build it.")
+            pytest.skip(
+                "cleanroom-tor image not built."
+                " Run 'docker build -t cleanroom-tor docker/tor-sidecar/' to build it."
+            )
     
     async def test_sidecar_starts_and_runs(self, docker_client: aiodocker.Docker):
         """The Tor sidecar container should start without immediately crashing."""
@@ -53,8 +55,10 @@ class TestTorSidecar:
             if network_id:
                 await destroy_session_network(docker_client, network_id, session_id)
 
-    async def test_sidecar_connected_to_session_network(self, docker_client: aiodocker.Docker):
-        f"""The sidecar should be attached to both the session bridge and the default bridge."""
+    async def test_sidecar_connected_to_session_network(
+        self, docker_client: aiodocker.Docker
+    ):
+        """Sidecar should be attached to the session bridge and default bridge."""
         session_id = "tor-integ-002"
         network_id = None
         sidecar_id = None

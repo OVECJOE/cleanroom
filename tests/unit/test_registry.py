@@ -1,11 +1,10 @@
-import asyncio
 import json
+from datetime import UTC, datetime, timedelta
+
 import pytest
-from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 from cleanroom.container.models import Session, SessionStatus
-from cleanroom.container.registry import SessionRegistry, REGISTRY_PATH
+from cleanroom.container.registry import SessionRegistry
 
 
 @pytest.fixture
@@ -123,7 +122,7 @@ class TestSessionModel:
 
     def test_is_expired_false_for_future(self):
         session = Session(
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=1)
+            expires_at=datetime.now(UTC) + timedelta(hours=1)
         )
         assert not session.is_expired
     
@@ -133,6 +132,6 @@ class TestSessionModel:
     
     def test_age_seconds_increases(self):
         session = Session(
-            created_at=datetime.now(timezone.utc) - timedelta(seconds=30)
+            created_at=datetime.now(UTC) - timedelta(seconds=30)
         )
         assert session.age_seconds >= 29

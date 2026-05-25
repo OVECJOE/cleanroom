@@ -1,10 +1,10 @@
 import asyncio
 import logging
 
+from cleanroom.config import settings
 from cleanroom.container.models import Session, SessionStatus
 from cleanroom.container.registry import SessionRegistry
 from cleanroom.stream.adb import ADBClient
-from cleanroom.config import settings
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
 import asyncio
-import pytest
-import aiodocker
 
+import pytest
+
+from cleanroom.config import Settings
 from cleanroom.container.manager import ContainerManager
 from cleanroom.container.models import SessionStatus
-from cleanroom.config import Settings
 
 
 @pytest.fixture
@@ -32,7 +32,9 @@ async def manager_with_alpine(test_registry, monkeypatch, alpine_image):
 
     # Also patch the port pool to use our test range
     from cleanroom.container import ports as ports_module
-    test_port_pool = __import__("cleanroom.container.ports", fromlist=["PortPool"]).PortPool()
+    test_port_pool = (
+        __import__("cleanroom.container.ports", fromlist=["PortPool"]).PortPool()
+    )
     monkeypatch.setattr(ports_module, "port_pool", test_port_pool)
     monkeypatch.setattr("cleanroom.container.manager.port_pool", test_port_pool)
 
@@ -40,7 +42,6 @@ async def manager_with_alpine(test_registry, monkeypatch, alpine_image):
     await manager.start()
 
     # Override _start_android_container to use Alpine-compatible config
-    original_start = manager._start_android_container
     async def start_alpine_container(session_id, adb_port, network_id):
         container_config = {
             "Image": alpine_image,
@@ -100,7 +101,9 @@ class TestContainerManager:
         running = await manager_with_alpine.is_container_running(session.container_id)
         assert running is True
     
-    async def test_session_in_registry_after_create(self, manager_with_alpine, test_registry):
+    async def test_session_in_registry_after_create(
+        self, manager_with_alpine, test_registry
+    ):
         """Created session should be findable in the registry."""
         session = await manager_with_alpine.create_session()
         found = test_registry.get(session.id)
@@ -117,7 +120,9 @@ class TestContainerManager:
         running = await manager_with_alpine.is_container_running(container_id)
         assert running is False
     
-    async def test_destroy_removes_from_registry(self, manager_with_alpine, test_registry):
+    async def test_destroy_removes_from_registry(
+        self, manager_with_alpine, test_registry
+    ):
         """After destroy, the session should not be in the registry."""
         session = await manager_with_alpine.create_session()
         await manager_with_alpine.destroy_session(session.id)
@@ -128,7 +133,6 @@ class TestContainerManager:
         from cleanroom.container.ports import port_pool
 
         session = await manager_with_alpine.create_session()
-        port = session.adb_port
         used_before = port_pool.in_use_count
 
         await manager_with_alpine.destroy_session(session.id)
@@ -160,7 +164,9 @@ class TestContainerManager:
                 except Exception:
                     pass
 
-    async def test_container_has_correct_memory_limit(self, manager_with_alpine, docker_client):
+    async def test_container_has_correct_memory_limit(
+        self, manager_with_alpine, docker_client
+    ):
         """
         The container's cgroup memory limit should match our configuration.
 
@@ -178,7 +184,9 @@ class TestContainerManager:
         finally:
             await manager_with_alpine.destroy_session(session.id)
 
-    async def test_adb_port_bound_to_localhost_only(self, manager_with_alpine, docker_client):
+    async def test_adb_port_bound_to_localhost_only(
+        self, manager_with_alpine, docker_client
+    ):
         """
         The ADB port must be bound to 127.0.0.1, never to 0.0.0.0.
 

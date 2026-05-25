@@ -1,4 +1,3 @@
-import pytest
 from cleanroom.stream.adb import ADBClient
 
 

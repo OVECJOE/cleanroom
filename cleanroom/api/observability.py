@@ -3,11 +3,10 @@ Observability: structured metrics and diagnostics
 
 TODO: replace with Prometheus metrics and connect to Grafana 
 """
-import asyncio
 import logging
-import os
 import time
 from pathlib import Path
+
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 

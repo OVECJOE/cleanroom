@@ -1,10 +1,11 @@
-from pydantic import BaseModel, Field
-from datetime import datetime, timezone
-from enum import Enum
 import uuid
+from datetime import UTC, datetime
+from enum import StrEnum
+
+from pydantic import BaseModel, Field
 
 
-class SessionStatus(str, Enum):
+class SessionStatus(StrEnum):
     """
     The lifecycle status of a session.
 
@@ -55,7 +56,7 @@ class Session(BaseModel):
     tor_container_id: str | None = None
     adb_port: int | None = None
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
+        default_factory=lambda: datetime.now(UTC)
     )
     expires_at: datetime | None = None
     status: SessionStatus = SessionStatus.CREATING
@@ -65,15 +66,17 @@ class Session(BaseModel):
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at
     
     @property
     def age_seconds(self) -> float:
-        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
+        return (datetime.now(UTC) - self.created_at).total_seconds()
 
     def model_post_init(self, __context) -> None:
         """Calculate expires_at from config if not set."""
         from cleanroom.config import settings
         if self.expires_at is None and self.created_at is not None:
             from datetime import timedelta
-            self.expires_at = self.created_at + timedelta(seconds=settings.session_ttl_seconds)
+            self.expires_at = self.created_at + timedelta(
+                seconds=settings.session_ttl_seconds
+            )

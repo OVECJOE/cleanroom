@@ -1,15 +1,13 @@
-import asyncio
-import pytest
-import subprocess
 import shutil
 
-from cleanroom.config import settings
+import pytest
 
 
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
-        "e2e: end-to-end tests requiring KVM, Android kernel modules, and the ReDroid image"
+        "e2e: end-to-end tests requiring KVM, Android kernel modules,"
+        " and the ReDroid image"
     )
 
 
@@ -32,7 +30,8 @@ def check_e2e_prerequisites():
     # Check for Binder
     if not os.path.exists("/dev/binder"):
         missing.append(
-            "/dev/binder not found. Load: modprobe binder_linux devices=binder,hwbinder,vndbinder"
+            "/dev/binder not found."
+            " Load: modprobe binder_linux devices=binder,hwbinder,vndbinder"
         )
     
     # Check for Ashmem
@@ -54,8 +53,8 @@ def check_e2e_prerequisites():
 @pytest.fixture(scope="session")
 async def e2e_manager(tmp_path_factory):
     """A ContainerManager using the real Android image for E2E tests."""
-    from cleanroom.container.registry import SessionRegistry
     from cleanroom.container.manager import ContainerManager
+    from cleanroom.container.registry import SessionRegistry
 
     tmp_path = tmp_path_factory.mktemp("e2e_registry")
     import os

@@ -60,7 +60,7 @@ class ADBClient:
                     f"stderr: {stderr_str}"
                 )
             return rc, stdout_str, stderr_str
-        except asyncio.TimeoutError:
+        except TimeoutError:
             raise TimeoutError(
                 f"ADB command timed out after {timeout}s: {' '.join(cmd)}"
             )
@@ -99,7 +99,10 @@ class ADBClient:
         it is set to "1" by Android's init system after all boot services
         have started.
         """
-        logger.info("Waiting for Android boot on %s (timeout=%ds)", self._serial, timeout)
+        logger.info(
+            "Waiting for Android boot on %s (timeout=%ds)",
+            self._serial, timeout
+        )
         deadline = asyncio.get_event_loop().time() + timeout
         poll_interval = 2.0
 

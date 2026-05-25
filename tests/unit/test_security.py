@@ -1,11 +1,11 @@
 import os
-import stat
-import pytest
 from pathlib import Path
+
+import pytest
+
 from cleanroom.security import (
-    verify_docker_socket_permissions,
-    verify_not_running_as_root,
     verify_binder_devices,
+    verify_not_running_as_root,
     verify_zram_configured,
 )
 
@@ -36,7 +36,6 @@ class TestSecurityChecks:
     
     def test_missing_binder_raises(self, tmp_path, monkeypatch):
         """Missing Binder devices should raise RuntimeError."""
-        import cleanroom.security as sec
 
         def fake_exists(self):
             return False

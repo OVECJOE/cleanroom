@@ -1,11 +1,11 @@
 import asyncio
-import pytest
-from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, patch
 
+import pytest
+
+from cleanroom.container.boot import run_boot_pipeline
 from cleanroom.container.models import Session, SessionStatus
 from cleanroom.container.registry import SessionRegistry
-from cleanroom.container.boot import run_boot_pipeline
 
 
 @pytest.fixture
@@ -34,7 +34,9 @@ def destroy_mock():
 
 class TestBootPipeline:
 
-    async def test_marks_ready_on_successful_boot(self, session, registry, destroy_mock):
+    async def test_marks_ready_on_successful_boot(
+        self, session, registry, destroy_mock
+    ):
         """A successful boot should set session status to READY."""
         await registry.add(session)
 
@@ -71,7 +73,9 @@ class TestBootPipeline:
         assert result.status == SessionStatus.DEAD
         destroy_mock.assert_awaited_once_with("boot-test")
     
-    async def test_continues_if_proxy_config_fails(self, session, registry, destroy_mock):
+    async def test_continues_if_proxy_config_fails(
+        self, session, registry, destroy_mock
+    ):
         """A proxy configuration failure should not abort the session."""
         await registry.add(session)
         session.tor_container_id = "some-tor-container"

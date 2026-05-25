@@ -1,8 +1,8 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
-from cleanroom.main import create_application
 from cleanroom.config import Settings
+from cleanroom.main import create_application
 
 
 @pytest.fixture
@@ -34,7 +34,6 @@ async def test_app(tmp_path, monkeypatch, alpine_image):
 
     # Override _start_android_container to use Alpine-compatible config
     from cleanroom.container.manager import ContainerManager
-    original_start = ContainerManager._start_android_container
     async def start_alpine_container(self, session_id, adb_port, network_id):
         container_config = {
             "Image": alpine_image,
@@ -64,7 +63,9 @@ async def test_app(tmp_path, monkeypatch, alpine_image):
         await container.start()
         return container_id
 
-    monkeypatch.setattr(ContainerManager, "_start_android_container", start_alpine_container)
+    monkeypatch.setattr(
+        ContainerManager, "_start_android_container", start_alpine_container
+    )
 
     monkeypatch.setenv("CLEANROOM_REGISTRY_PATH", str(tmp_path / "sessions.json"))
 

@@ -1,7 +1,5 @@
-import asyncio
-import pytest
 import aiodocker
-from pathlib import Path
+import pytest
 
 
 @pytest.fixture
@@ -27,7 +25,8 @@ async def alpine_image(docker_client: aiodocker.Docker):
     """
     Ensure the alpine image is pulled before integration tests.
 
-    We use Alpine instead of the full Android image because it is much smaller and faster to pull.
+    We use Alpine instead of the full Android image because it is much
+    smaller and faster to pull.
     """
     try:
         await docker_client.images.inspect("alpine:3.19")

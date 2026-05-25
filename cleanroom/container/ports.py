@@ -1,7 +1,8 @@
 import asyncio
-import socket
-from cleanroom.config import settings
 import logging
+import socket
+
+from cleanroom.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class PortPool:
             logger.debug("Released ADB port %d", port)
 
     async def reclaim(self, ports: list[int]) -> None:
-        """On startup after a crash, reclaim ports used by sessions we are recovering."""
+        """Reclaim ports from recovered sessions on startup."""
         async with self._lock:
             for port in ports:
                 self._available.discard(port)

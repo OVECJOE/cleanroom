@@ -1,7 +1,7 @@
 import asyncio
+
 import pytest
 
-from cleanroom.container.models import SessionStatus
 from cleanroom.stream.adb import ADBClient
 
 
@@ -11,8 +11,9 @@ class TestAndroidBoot:
     async def test_android_boots_successfully(self, e2e_manager):
         """
         The full Android boot sequence should complete within timeout. This is important
-        as it verifies that the container starts, Android init runs, Binder and Ashmem are
-        accessible, Android's boot_completed property is set, and ADB accepts connections.
+        as it verifies that the container starts, Android init runs,
+        Binder and Ashmem are accessible, Android's boot_completed property
+        is set, and ADB accepts connections.
         """
         manager, registry = e2e_manager
         session = await manager.create_session()

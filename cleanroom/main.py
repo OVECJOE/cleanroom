@@ -1,6 +1,4 @@
-import asyncio
 import logging
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from cleanroom.config import settings
 from cleanroom.container.manager import ContainerManager
 from cleanroom.container.registry import SessionRegistry
-from cleanroom.watchdog.ttl import TTLWatchdog
 from cleanroom.security import run_startup_security_checks
+from cleanroom.watchdog.ttl import TTLWatchdog
 
 run_startup_security_checks()
 
@@ -85,10 +83,10 @@ def create_application() -> FastAPI:
     )
 
     # Register routes
-    from cleanroom.api.sessions import router as sessions_router
     from cleanroom.api.health import router as health_router
-    from cleanroom.api.stream import router as stream_router
     from cleanroom.api.observability import router as metrics_router
+    from cleanroom.api.sessions import router as sessions_router
+    from cleanroom.api.stream import router as stream_router
 
     app.include_router(sessions_router, prefix="/api")
     app.include_router(health_router)

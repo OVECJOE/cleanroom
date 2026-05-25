@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from datetime import datetime, timezone
 
 from cleanroom.container.manager import ContainerManager
 from cleanroom.container.models import SessionStatus
@@ -73,7 +72,6 @@ class TTLWatchdog:
     async def _check_sessions(self) -> None:
         """Check all sessions and destroy any that have expired."""
         sessions = list(self._registry)
-        now = datetime.now(timezone.utc)
 
         for session in sessions:
             # Skip sessions in terminal or transitional states

@@ -1,9 +1,9 @@
 import asyncio
 import json
 import logging
-from typing import Any
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
-from starlette.websockets import WebSocketClose, WebSocketState
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from starlette.websockets import WebSocketState
 
 from cleanroom.container.models import SessionStatus
 from cleanroom.stream.adb import ADBClient

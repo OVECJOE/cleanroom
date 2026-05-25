@@ -3,8 +3,8 @@ import json
 import logging
 import os
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from cleanroom.container.models import Session, SessionStatus
 
@@ -21,16 +21,17 @@ class SessionRegistry:
     """
     An in-memory store for active sessions, with persistence for crash recovery.
 
-    Think of this as the landlord's logbook. Every tenant (session) gets an
-    entry the moment they move in (container created), and the entry is
-    removed when they leave (container destroyed). If the landlord has a heart attack (backend crashes),
-    someone else can pick up the logbook and know exactly which apartments are occupied and when their
-    leases expire.
+    Think of this as the landlord's logbook. Every tenant (session) gets
+    an entry the moment they move in (container created), and the entry
+    is removed when they leave (container destroyed). If the landlord has
+    a heart attack (backend crashes), someone else can pick up the logbook
+    and know exactly which apartments are occupied and when their leases
+    expire.
 
-    Thread safety: all mutation goes through asyncio. Since FastAPI runs on a single-threaded
-    event loop, there are no concurrent writes as each coroutine runs to the
-    next await point before another starts. The lock is here as defense-in-depth
-    for future parellelism.
+    Thread safety: all mutation goes through asyncio. Since FastAPI runs
+    on a single-threaded event loop, there are no concurrent writes as
+    each coroutine runs to the next await point before another starts.
+    The lock is here as defense-in-depth for future parellelism.
     """
 
     def __init__(self):

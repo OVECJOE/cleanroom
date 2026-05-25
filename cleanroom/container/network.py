@@ -1,5 +1,5 @@
-import asyncio
 import logging
+
 import aiodocker
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,9 @@ async def create_session_network(client: aiodocker.Docker, session_id: str) -> s
     return network_id
 
 
-async def destroy_session_network(client: aiodocker.Docker, network_id: str, session_id: str) -> None:
+async def destroy_session_network(
+    client: aiodocker.Docker, network_id: str, session_id: str
+) -> None:
     """
     Delete a session's bridge network.
 
@@ -44,7 +46,10 @@ async def destroy_session_network(client: aiodocker.Docker, network_id: str, ses
         logger.info("Deleted network %s for session %s", network_id, session_id)
     except aiodocker.exceptions.DockerError as e:
         if e.status == 404:
-            logger.warning("Network %s not found (already deleted?) for session %s", network_id, session_id)
+            logger.warning(
+                "Network %s not found (already deleted?) for session %s",
+                network_id, session_id
+            )
         else:
             logger.error("Failed to delete network %s: %s", network_id, e)
             raise

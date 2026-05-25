@@ -102,7 +102,9 @@ class ScrcpyStream:
                 header = await asyncio.wait_for(
                     self._reader.readexactly(68), timeout=5.0
                 )
-                device_name = header[:64].rstrip(b'\x00').decode("utf-8", errors="replace")
+                device_name = (
+                    header[:64].rstrip(b'\x00').decode("utf-8", errors="replace")
+                )
                 width = struct.unpack(">H", header[64:66])[0]
                 height = struct.unpack(">H", header[66:68])[0]
                 logger.info(
@@ -142,7 +144,6 @@ class ScrcpyStream:
             header = await asyncio.wait_for(
                 self._reader.readexactly(12), timeout=5.0
             )
-            pts = struct.unpack(">Q", header[:8])[0]
             size = struct.unpack(">I", header[8:12])[0]
 
             if size == 0:
@@ -155,7 +156,7 @@ class ScrcpyStream:
         except asyncio.IncompleteReadError:
             logger.info("scrcpy stream ended for session %s", self.session_id)
             return None
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning("scrcpy frame read timeout for session %s", self.session_id)
             return None
     

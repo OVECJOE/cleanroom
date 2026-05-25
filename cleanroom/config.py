@@ -1,8 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
-import os
 import sys
 from pathlib import Path
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 def _default_docker_socket() -> str:
     """Detect the Docker socket path, handling Docker Desktop on Linux."""

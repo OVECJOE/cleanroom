@@ -1,10 +1,10 @@
 import asyncio
 import socket
-import pytest
-from unittest.mock import patch
 
-from cleanroom.container.ports import PortPool
+import pytest
+
 from cleanroom.config import Settings
+from cleanroom.container.ports import PortPool
 
 
 @pytest.fixture

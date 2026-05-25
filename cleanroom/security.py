@@ -7,7 +7,6 @@ tests might still be a security hole; aims to prevent that.
 """
 import logging
 import os
-import subprocess
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,8 @@ def verify_docker_socket_permissions() -> None:
 
     if mode & 0o002: # world-writable
         raise RuntimeError(
-            f"SECURITY: Docker socket {socket_path} is world-writable (mode={oct(mode)}). "
+            f"SECURITY: Docker socket {socket_path} is world-writable"
+            f" (mode={oct(mode)}). "
             "This allows privilege escalation. Fix: chmod 660 /var/run/docker.sock"
         )
 

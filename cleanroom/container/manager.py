@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from contextlib import asynccontextmanager
 
 import aiodocker
 import aiodocker.exceptions
@@ -14,7 +13,8 @@ from cleanroom.container.registry import SessionRegistry
 
 logger = logging.getLogger(__name__)
 
-# The tmpfs options for the Android /data directory. This is where apps store their data, so it needs to be writable.
+# The tmpfs options for the Android /data directory. This is where apps
+# store their data, so it needs to be writable.
 ANDROID_DATA_TMPFS = {
     "type": "tmpfs",
     "target": "/data",
@@ -33,9 +33,9 @@ class ContainerManager:
     and destroys containers, maintaining the registry as the authoritative
     record of what is running.
 
-    The Docker client (aiodocker) speaks the Docker Engine API over Unix socket at /var/run/docker.sock.
-    Every method call here is an HTTP request to that API, wrapped in asyncio so it
-    does not block.
+    The Docker client (aiodocker) speaks the Docker Engine API over
+    Unix socket at /var/run/docker.sock. Every method call here is an
+    HTTP request to that API, wrapped in asyncio so it does not block.
     """
 
     def __init__(self, registry: SessionRegistry):
@@ -83,7 +83,8 @@ class ContainerManager:
         # Check session limit before acquiring any resource
         if self._registry.count() >= settings.max_sessions:
             raise RuntimeError(
-                f"Maximum sessions ({settings.max_sessions}) reached. Cannot create new session."
+                f"Maximum sessions ({settings.max_sessions}) reached."
+                " Cannot create new session."
             )
         
         # Create the session record immediately so it is in the registry.
@@ -228,7 +229,8 @@ class ContainerManager:
                 # Container filesystem is read-only. Android writes go to
                 # the tmpfs mounts only. A compromised container cannot
                 # modify its own image or the overlay filesystem.
-                "ReadonlyRootfs": False, # We need to write to /data, so rootfs cannot be read-only
+                # rootfs cannot be read-only since /data needs writes
+                "ReadonlyRootfs": False,
                 # Restart policy: no automatic restart.
                 "RestartPolicy": {"Name": "no"},
             },
@@ -335,7 +337,10 @@ class ContainerManager:
             logger.debug("Removed container %s", container_id[:12])
         except aiodocker.exceptions.DockerError as e:
             if e.status == 404:
-                logger.warning("Container %s not found (already removed?)", container_id[:12])
+                logger.warning(
+                    "Container %s not found (already removed?)",
+                    container_id[:12]
+                )
             else:
                 raise
     
@@ -355,7 +360,10 @@ class ContainerManager:
             try:
                 await self._remove_container(session.container_id)
             except Exception as e:
-                logger.error("Cleanup: container removal failed for session %s: %s", session.id, e)
+                logger.error(
+                    "Cleanup: container removal failed for session %s: %s",
+                    session.id, e
+                )
 
         if network_id:
             try:
@@ -363,7 +371,10 @@ class ContainerManager:
                     self.client, network_id, session.id
                 )
             except Exception as e:
-                logger.error("Cleanup: network deletion deletion for session %s: %s", session.id, e)
+                logger.error(
+                    "Cleanup: network deletion failed for session %s: %s",
+                    session.id, e
+                )
         
         if port:
             await port_pool.release(port)
