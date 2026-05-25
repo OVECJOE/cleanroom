@@ -1,1 +1,33 @@
-# docker-compose.yml
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - cleanroom-data:/var/lib/cleanroom
+    environment:
+      CLEANROOM_MAX_SESSIONS: "3"
+      CLEANROOM_SESSION_MEMORY_MB: "128"
+      CLEANROOM_SESSION_TTL_SECONDS: "300"
+      CLEANROOM_ENABLE_TOR: "false"
+      CLEANROOM_LOG_LEVEL: "DEBUG"
+      CLEANROOM_ANDROID_IMAGE: "alpine:3.19"  # Stand-in for dev
+      CLEANROOM_REGISTRY_PATH: "/var/lib/cleanroom/sessions.json"
+      CLEANROOM_ADB_PORT_RANGE_START: "5555"
+      CLEANROOM_ADB_PORT_RANGE_END: "5655"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  cleanroom-data:
+    driver: local

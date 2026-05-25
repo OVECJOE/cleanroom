@@ -1,0 +1,41 @@
+#include <tunnables/global>
+
+profile cleanroom-container flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Allow reading the proc filesystem (needed by many processes)
+    /proc/** r,
+
+    # Allow reading sys filesystem
+    /sys/** r,
+
+    # Allow Android's binder and ashmem devices
+    /dev/binder rw,
+    /dev/hwbinder rw,
+    /dev/vndbinder rw,
+    /dev/ashmem rw,
+
+    # Allow tmpfs operations (for /data mount)
+    /data/** rwk,
+
+    # Deny writing to the host filesystem
+    deny /etc/** w,
+    deny /var/** w,
+    deny /usr/** w,
+    deny /bin/** w,
+    /sbin/** w,
+
+    # Deny ptrace (prevents process inspection attacks)
+    deny ptrace,
+
+    # Deny mounting filesystem (prevent container escape via mount tricks)
+    deny mount,
+    deny unmount,
+    deny pivot_root,
+
+    # Network access through the container's own namespace
+    network inet stream,
+    network inet dgram,
+    network inet6 stream,
+    network inet6 dgram,
+}
